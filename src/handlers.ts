@@ -66,6 +66,7 @@ export const directoryHandler: WorkerHandlers["directory"] = async (
 
 export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
   console.log("item", input);
+  await ctx.requestCache(input);
 
   /** Geo restrictions based on IP */
   return ctx
