@@ -88,16 +88,16 @@ export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
         },
         name: widget.title,
         description: widget.synopsis,
-        sources: filteredSources.length
-          ? filteredSources
-          : sources.map<Source>((_) => {
-              const qualityStr = _._height ? ` ${_._height}p` : "";
-              return {
-                type: "url",
-                name: `ARD Mediathek${qualityStr}`,
-                url: (_._stream as string).replace(/^\/\//, "http://"),
-              };
-            }),
+        sources: (filteredSources.length ? filteredSources : sources).map<
+          Source
+        >((_) => {
+          const qualityStr = _._height ? ` ${_._height}p` : "";
+          return {
+            type: "url",
+            name: `ARD Mediathek${qualityStr}`,
+            url: (_._stream as string).replace(/^\/\//, "http://"),
+          };
+        }),
       };
     });
 };
