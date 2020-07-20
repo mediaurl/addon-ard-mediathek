@@ -69,35 +69,57 @@ export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
   await ctx.requestCache(input);
 
   /** Geo restrictions based on IP */
-  return ctx
+  const jsonResp = await ctx
     .fetch(input.ids.id as string)
-    .then<ItemResponse>((data) => data.json())
-    .then((data) => {
-      const widget = data.widgets[0];
+    .then<ItemResponse>((data) => data.json());
 
-      const sources =
-        widget.mediaCollection.embedded._mediaArray[0]._mediaStreamArray;
-      const filteredSources = sources.filter(
-        (_) => typeof _._quality === "number" && _._height
-      );
+  const widget = jsonResp.widgets[0];
 
-      return {
-        type: "movie",
-        ids: {
-          id: input.ids.id,
-        },
-        name: widget.title,
-        description: widget.synopsis,
-        sources: (filteredSources.length ? filteredSources : sources).map<
-          Source
-        >((_) => {
-          const qualityStr = _._height ? ` ${_._height}p` : "";
-          return {
-            type: "url",
-            name: `ARD Mediathek${qualityStr}`,
-            url: (_._stream as string).replace(/^\/\//, "http://"),
-          };
-        }),
-      };
+  const sources =
+    widget.mediaCollection.embedded._mediaArray[0]._mediaStreamArray;
+  const filteredSources = sources.filter(
+    (_) => typeof _._quality === "number" && _._height
+  );
+  const responseSources = filteredSources.length ? filteredSources : sources;
+
+  const geoBlockingApplied = await new Promise<boolean>(async (resolve) => {
+    const akamaiSource = responseSources.find((s) => s._cdn === "akamai");
+    if (!akamaiSource) {
+      return resolve(false);
+    }
+
+    const resp = await ctx.fetch(akamaiSource._stream as string, {
+      method: "GET",
+      headers: {
+        Range: "bytes=0-1",
+      },
     });
+
+    const isOk = resp.ok;
+
+    return resolve(!isOk);
+  });
+
+  console.log({ geoBlockingApplied });
+
+  if (geoBlockingApplied) {
+    throw new Error("Item is blocked in your region");
+  }
+
+  return {
+    type: "movie",
+    ids: {
+      id: input.ids.id,
+    },
+    name: widget.title,
+    description: widget.synopsis,
+    sources: responseSources.map<Source>((_) => {
+      const qualityStr = _._height ? ` ${_._height}p` : "";
+      return {
+        type: "url",
+        name: `ARD Mediathek${qualityStr}`,
+        url: (_._stream as string).replace(/^\/\//, "http://"),
+      };
+    }),
+  };
 };
