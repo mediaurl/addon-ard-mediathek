@@ -12,6 +12,8 @@ import { HomeResponse } from "./types";
 // Search
 // https://api.ardmediathek.de/page-gateway/widgets/ard/search/vod?searchString=test&pageNumber=0&pageSize=12
 
+export const fixStreamUrl = (url: string) => url.replace(/^\/\//, "http://");
+
 export const makeRequest = <T = any>(url: string, qs?: any): Promise<T> => {
   return fetch(url + (qs ? "?" + stringifyQuery(qs) : "")).then((resp) =>
     resp.json()

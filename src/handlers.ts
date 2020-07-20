@@ -5,7 +5,7 @@ import {
   Source,
   DirectoryResponse,
 } from "@watchedcom/sdk";
-import { makeRequest } from "./ard.service";
+import { makeRequest, fixStreamUrl } from "./ard.service";
 import { CompilationResponse, ItemResponse, TeaserTypes } from "./types";
 
 const DIRECTORY_TYPES: TeaserTypes[] = ["compilation"];
@@ -88,7 +88,7 @@ export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
       return resolve(false);
     }
 
-    const resp = await ctx.fetch(akamaiSource._stream as string, {
+    const resp = await ctx.fetch(fixStreamUrl(akamaiSource._stream as string), {
       method: "GET",
       headers: {
         Range: "bytes=0-1",
@@ -99,8 +99,6 @@ export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
 
     return resolve(!isOk);
   });
-
-  console.log({ geoBlockingApplied });
 
   if (geoBlockingApplied) {
     throw new Error("Item is blocked in your region");
@@ -118,7 +116,7 @@ export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
       return {
         type: "url",
         name: `ARD Mediathek${qualityStr}`,
-        url: (_._stream as string).replace(/^\/\//, "http://"),
+        url: fixStreamUrl(_._stream as string),
       };
     }),
   };
