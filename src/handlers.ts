@@ -43,8 +43,10 @@ export const directoryHandler: WorkerHandlers["directory"] = async (
   input,
   ctx
 ) => {
-  console.log("directory", input);
-  await ctx.requestCache(input);
+  await ctx.requestCache([input.cursor, input.search, input.id], {
+    ttl: "7d",
+    refreshInterval: "1h",
+  });
 
   const pageNumber = input.cursor || 0;
 
@@ -65,8 +67,10 @@ export const directoryHandler: WorkerHandlers["directory"] = async (
 };
 
 export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
-  console.log("item", input);
-  await ctx.requestCache(input);
+  await ctx.requestCache([input.ids.id, input.region], {
+    ttl: "7d",
+    refreshInterval: "1h",
+  });
 
   /** Geo restrictions based on IP */
   const jsonResp = await ctx
@@ -99,8 +103,6 @@ export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
 
     return resolve(!isOk);
   });
-
-  console.log({ geoBlockingApplied });
 
   if (geoBlockingApplied) {
     throw new Error("Item is blocked in your region");
