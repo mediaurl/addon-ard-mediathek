@@ -1,1 +1,1 @@
-# watched-addon-ard-mediathek
+# mediaurl-ard-mediathek

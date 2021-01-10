@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { DashboardItem } from "@watchedcom/sdk";
+import { DashboardItem } from "@mediaurl/sdk";
 import { stringify as stringifyQuery } from "querystring";
 import { HomeResponse } from "./types";
 

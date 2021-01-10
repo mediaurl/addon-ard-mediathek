@@ -4,7 +4,7 @@ import {
   MainItem,
   Source,
   DirectoryResponse,
-} from "@watchedcom/sdk";
+} from "@mediaurl/sdk";
 import { makeRequest, fixStreamUrl } from "./ard.service";
 import { CompilationResponse, ItemResponse, TeaserTypes } from "./types";
 
