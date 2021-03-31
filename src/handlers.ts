@@ -1,18 +1,15 @@
 import {
-  WorkerHandlers,
-  PlayableItem,
+  ActionHandlers,
+  CatalogResponse,
   MainItem,
   Source,
-  DirectoryResponse,
 } from "@mediaurl/sdk";
-import { makeRequest, fixStreamUrl } from "./ard.service";
+import { fixStreamUrl, makeRequest } from "./ard.service";
 import { CompilationResponse, ItemResponse, TeaserTypes } from "./types";
 
 const DIRECTORY_TYPES: TeaserTypes[] = ["compilation"];
 
-const mapCompilationResponse = (
-  data: CompilationResponse
-): DirectoryResponse => {
+const mapCompilationResponse = (data: CompilationResponse): CatalogResponse => {
   const {
     pagination: { pageNumber },
   } = data;
@@ -39,7 +36,7 @@ const mapCompilationResponse = (
   };
 };
 
-export const directoryHandler: WorkerHandlers["directory"] = async (
+export const directoryHandler: ActionHandlers["catalog"] = async (
   input,
   ctx
 ) => {
@@ -66,7 +63,7 @@ export const directoryHandler: WorkerHandlers["directory"] = async (
   ).then(mapCompilationResponse);
 };
 
-export const itemHandler: WorkerHandlers["item"] = async (input, ctx) => {
+export const itemHandler: ActionHandlers["item"] = async (input, ctx) => {
   await ctx.requestCache([input.ids.id, input.region], {
     ttl: "7d",
     refreshInterval: "1h",

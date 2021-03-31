@@ -1,26 +1,29 @@
-import { createWorkerAddon, runCli } from "@mediaurl/sdk";
+import { createAddon, runCli } from "@mediaurl/sdk";
 import { directoryHandler, itemHandler } from "./handlers";
 import { getDashboards } from "./ard.service";
 
 const main = async () => {
-  const ardMediathekAddon = createWorkerAddon({
+  const ardMediathekAddon = createAddon({
     id: "ard-mediathek",
     name: "ARD Mediathek",
     icon: "https://www.ardmediathek.de/images/CiPOTLni.png",
-    version: "0.0.0",
+    version: "1.0.0",
     itemTypes: ["movie", "series", "directory"],
-    rootDirectories: [],
+    catalogs: [
+      {
+        features: {
+          search: { enabled: true },
+        },
+        options: {
+          imageShape: "landscape",
+          displayName: true,
+        },
+      },
+    ],
     dashboards: await getDashboards(),
-    defaultDirectoryFeatures: {
-      search: { enabled: true },
-    },
-    defaultDirectoryOptions: {
-      imageShape: "landscape",
-      displayName: true,
-    },
   });
 
-  ardMediathekAddon.registerActionHandler("directory", directoryHandler);
+  ardMediathekAddon.registerActionHandler("catalog", directoryHandler);
   ardMediathekAddon.registerActionHandler("item", itemHandler);
 
   runCli([ardMediathekAddon], { singleMode: true });
