@@ -6,7 +6,7 @@ const main = async () => {
   const ardMediathekAddon = createAddon({
     id: "ard-mediathek",
     name: "ARD Mediathek",
-    icon: "https://www.ardmediathek.de/images/CiPOTLni.png",
+    icon: "https://api.faviconkit.com/ardmediathek.de/144",
     version: "1.0.0",
     itemTypes: ["movie", "series", "directory"],
     catalogs: [
