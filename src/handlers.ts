@@ -44,7 +44,7 @@ export const directoryHandler: ActionHandlers["catalog"] = async (
   input,
   ctx
 ) => {
-  console.log("directory", input);
+  // console.log("directory", input);
   await ctx.requestCache([input.cursor, input.search, input.id], {
     ttl: "7d",
     refreshInterval: "1h",
@@ -69,7 +69,7 @@ export const directoryHandler: ActionHandlers["catalog"] = async (
 };
 
 export const itemHandler: ActionHandlers["item"] = async (input, ctx) => {
-  console.log("item", input);
+  // console.log("item", input);
   await ctx.requestCache([input.ids.id, input.region], {
     ttl: "7d",
     refreshInterval: "1h",
