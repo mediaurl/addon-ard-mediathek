@@ -7,14 +7,18 @@ import {
 import { fixStreamUrl, makeRequest } from "./ard.service";
 import { CompilationResponse, ItemResponse, TeaserTypes } from "./types";
 
-const DIRECTORY_TYPES: TeaserTypes[] = ["compilation"];
+const DIRECTORY_TYPES: TeaserTypes[] = ["compilation", "show"];
 
 const mapCompilationResponse = (data: CompilationResponse): CatalogResponse => {
-  const {
-    pagination: { pageNumber },
-  } = data;
+  const root = data?.widgets?.[0] ?? data;
+  const pageNumber = root.pagination.pageNumber;
+  const teasers = root.teasers;
+  const isEndPage =
+    (root.pagination.pageNumber + 1) * root.pagination.pageSize >
+    root.pagination.totalElements;
+
   return {
-    items: data.teasers.map<MainItem>((teaser) => {
+    items: teasers.map<MainItem>((teaser) => {
       const href = teaser.links.target.href.split("?")[0];
 
       return {
@@ -32,7 +36,7 @@ const mapCompilationResponse = (data: CompilationResponse): CatalogResponse => {
         },
       };
     }),
-    nextCursor: pageNumber + 1,
+    nextCursor: isEndPage ? null : pageNumber + 1,
   };
 };
 
@@ -40,6 +44,7 @@ export const directoryHandler: ActionHandlers["catalog"] = async (
   input,
   ctx
 ) => {
+  console.log("directory", input);
   await ctx.requestCache([input.cursor, input.search, input.id], {
     ttl: "7d",
     refreshInterval: "1h",
@@ -58,12 +63,13 @@ export const directoryHandler: ActionHandlers["catalog"] = async (
   }
 
   return makeRequest<CompilationResponse>(
-    (input.id as string).replace("/pages/", "/widgets/"),
+    input.id as string, //.replace("/pages/", "/widgets/"),
     { pageNumber }
   ).then(mapCompilationResponse);
 };
 
 export const itemHandler: ActionHandlers["item"] = async (input, ctx) => {
+  console.log("item", input);
   await ctx.requestCache([input.ids.id, input.region], {
     ttl: "7d",
     refreshInterval: "1h",
@@ -77,7 +83,7 @@ export const itemHandler: ActionHandlers["item"] = async (input, ctx) => {
   const widget = jsonResp.widgets[0];
 
   const sources =
-    widget.mediaCollection.embedded._mediaArray[0]._mediaStreamArray;
+    widget.mediaCollection?.embedded._mediaArray[0]._mediaStreamArray ?? [];
   const filteredSources = sources.filter(
     (_) => typeof _._quality === "number" && _._height
   );

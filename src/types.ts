@@ -74,11 +74,12 @@ export type ItemResponse = {
           }[];
         }[];
       };
-    };
+    } | null;
   }[];
 };
 
 export type CompilationResponse = {
   teasers: Teaser[];
   pagination: Pagination;
+  widgets?: CompilationResponse[];
 };
