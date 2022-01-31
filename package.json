@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node .",
-    "develop": "ts-node-dev --transpile-only --no-notify src"
+    "develop": "ts-node-dev --transpile-only --no-notify src",
+    "prepare": "npx simple-git-hooks"
   },
   "dependencies": {
     "@mediaurl/sdk": "^2.0.0-alpha.9",
@@ -13,16 +14,14 @@
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.8",
-    "husky": "^5.0.9",
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
+    "simple-git-hooks": "^2.7.0",
     "ts-node-dev": "^1.1.1",
     "typescript": "^4.1.5"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
     "*.{js,ts,tsx,css,md}": [
